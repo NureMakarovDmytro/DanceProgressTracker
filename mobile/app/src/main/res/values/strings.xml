@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DanceProgressTracker</string>
+
+    <!-- Екран входу -->
+    <string name="login_title">Вхід для викладача</string>
+    <string name="username">Логін</string>
+    <string name="password">Пароль</string>
+    <string name="login_button">Увійти</string>
+
+    <!-- Групи -->
+    <string name="groups_title">Групи</string>
+    <string name="group_subtitle">Стиль: %1$s · Рівень: %2$s</string>
+    <string name="empty_groups">Груп не знайдено</string>
+
+    <!-- Заняття -->
+    <string name="lessons_section">Заняття</string>
+    <string name="open_stats">Статистика групи</string>
+    <string name="add_lesson">Додати заняття</string>
+    <string name="no_lessons">Занять ще немає. Натисніть «Додати заняття» або день у календарі.</string>
+    <string name="present_of">Присутніх: %1$d / %2$d</string>
+    <string name="calendar_title">Календар</string>
+
+    <!-- Редактор заняття -->
+    <string name="new_lesson">Нове заняття</string>
+    <string name="edit_lesson">Заняття</string>
+    <string name="lesson_date">Дата: %1$s</string>
+    <string name="save_lesson">Зберегти заняття</string>
+    <string name="delete_lesson">Видалити заняття</string>
+    <string name="lesson_saved">Заняття збережено</string>
+    <string name="grade_placeholder">Оцінка</string>
+    <string name="grade_none">Без оцінки</string>
+
+    <!-- Статистика -->
+    <string name="stats_title">Статистика: %1$s</string>
+    <string name="stat_absences">Пропуски: %1$d</string>
+    <string name="stat_average">Середній бал: %1$s</string>
+    <string name="empty_stats">Даних немає</string>
+</resources>
