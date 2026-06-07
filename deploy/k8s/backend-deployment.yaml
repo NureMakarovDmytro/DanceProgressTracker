@@ -1,0 +1,68 @@
+# Deployment шару API — це те, що масштабується ГОРИЗОНТАЛЬНО.
+# Усі pod-и ідентичні й не зберігають стану (stateless): автентифікація через JWT,
+# жодних серверних сесій у пам'яті. Тому будь-який pod може обслужити будь-який запит,
+# а кількість реплік можна збільшувати/зменшувати без втрати даних.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: dpt
+  labels:
+    app: backend
+spec:
+  # Стартуємо з 2 реплік; далі цим керує HPA (backend-hpa.yaml) або `kubectl scale`.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # Замініть на свій образ/реєстр. imagePullPolicy: IfNotPresent зручно для локального minikube/kind.
+          image: dpt-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+          env:
+            # Підключення до сервісу Mongo всередині кластера.
+            - name: MONGO_URI
+              value: "mongodb://mongo.dpt.svc.cluster.local:27017/dpt"
+            - name: PORT
+              value: "4000"
+            # Секрет JWT беремо із Secret-а (див. secret.example.yaml).
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: jwt-secret
+          # requests — скільки гарантовано виділяється (за цим HPA рахує % CPU).
+          # limits — стеля, понад яку pod не отримає ресурсів.
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          # readinessProbe: pod не отримує трафік від Service, поки /health не відповість.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          # livenessProbe: якщо /health перестав відповідати — Kubernetes перезапускає pod.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

@@ -1,0 +1,92 @@
+# MongoDB — ОДИН екземпляр (stateful-сервіс).
+# ВАЖЛИВО: горизонтально масштабується саме шар API (backend-deployment.yaml),
+# а база лишається одна. Реплікація БД (replica set) — це окреме, складніше
+# завдання і тут навмисно НЕ робиться (зазначено як майбутній крок у README).
+#
+# Складається з трьох об'єктів: PersistentVolumeClaim + Deployment + Service.
+---
+# Постійне сховище для даних Mongo, щоб дані не зникали при перезапуску pod-а.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+  namespace: dpt
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: dpt
+  labels:
+    app: mongo
+spec:
+  # Тільки 1 репліка: база не масштабується горизонтально в цій ЛР.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  # Recreate, бо том ReadWriteOnce не можна монтувати у два pod-и одночасно.
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:7
+          ports:
+            - containerPort: 27017
+          # Опційні креди беремо із Secret-а (див. mongo-secret.example.yaml).
+          # Якщо Secret не створено — Mongo стартує без автентифікації (ОК для лабораторної).
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: username
+                  optional: true
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: password
+                  optional: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+---
+# ClusterIP-сервіс: до Mongo звертаються лише pod-и API всередині кластера.
+# DNS-ім'я: mongo.dpt.svc.cluster.local (або просто "mongo" у тому ж namespace).
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: dpt
+  labels:
+    app: mongo
+spec:
+  type: ClusterIP
+  selector:
+    app: mongo
+  ports:
+    - port: 27017
+      targetPort: 27017

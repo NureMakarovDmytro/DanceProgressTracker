@@ -1,0 +1,13 @@
+# Не копіюємо в образ зайве — менший розмір і чистіший кеш.
+node_modules
+npm-debug.log
+.env
+.env.*
+.git
+.gitignore
+Dockerfile
+.dockerignore
+*.md
+coverage
+.DS_Store
+deploy

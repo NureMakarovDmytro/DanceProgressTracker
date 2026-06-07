@@ -1,0 +1,19 @@
+# ClusterIP-сервіс для шару API.
+# Це і є внутрішній балансувальник навантаження: один стабільний віртуальний IP/DNS,
+# за яким kube-proxy розподіляє запити між УСІМА готовими pod-ами backend (round-robin).
+# Саме завдяки цьому додавання реплік автоматично збільшує сумарну пропускну здатність.
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: dpt
+  labels:
+    app: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: backend        # відбирає всі pod-и з міткою app=backend
+  ports:
+    - name: http
+      port: 80          # порт сервісу
+      targetPort: 4000  # порт контейнера

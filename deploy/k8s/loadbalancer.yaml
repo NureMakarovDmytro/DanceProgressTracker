@@ -1,0 +1,21 @@
+# АЛЬТЕРНАТИВА до ingress.yaml: Service типу LoadBalancer.
+# У хмарі (GKE/EKS/AKS) цей тип сервісу автоматично створює зовнішній мережевий
+# балансувальник із публічним IP, який розподіляє трафік між pod-ами backend.
+# Локально (minikube) працює через `minikube tunnel`.
+#
+# Використовуйте АБО Ingress (ingress.yaml), АБО цей LoadBalancer — не обидва водночас.
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-lb
+  namespace: dpt
+  labels:
+    app: backend
+spec:
+  type: LoadBalancer
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 4000

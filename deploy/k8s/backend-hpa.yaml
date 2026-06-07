@@ -1,0 +1,25 @@
+# HorizontalPodAutoscaler — автоматичне горизонтальне масштабування шару API.
+# Логіка: HPA дивиться на середнє завантаження CPU усіх pod-ів backend
+# (відносно requests.cpu = 100m). Якщо середнє > 60% — додає pod-и, якщо нижче — прибирає.
+#
+# ПЕРЕДУМОВА: у кластері має працювати metrics-server
+#   (minikube addons enable metrics-server  АБО  встановлення компонента metrics-server).
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend
+  namespace: dpt
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60   # цільове середнє завантаження CPU = 60%

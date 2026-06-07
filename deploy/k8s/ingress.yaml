@@ -1,0 +1,29 @@
+# ОСНОВНИЙ спосіб зовнішнього доступу: nginx Ingress.
+# Ingress — це L7-маршрутизатор: приймає HTTP ззовні й спрямовує на ClusterIP-сервіс backend,
+# який, своєю чергою, балансує між pod-ами. Сам по собі Ingress трафік між pod-ами не ділить —
+# це робить Service; Ingress дає одну зовнішню точку входу та маршрутизацію за host/path.
+#
+# ПЕРЕДУМОВА: у кластері встановлено Ingress-контролер (напр. ingress-nginx).
+#   minikube addons enable ingress
+#
+# Альтернатива (для хмари) — Service type LoadBalancer, див. loadbalancer.yaml.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend
+  namespace: dpt
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: dpt.local            # додайте у /etc/hosts: "<IP кластера> dpt.local"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 80

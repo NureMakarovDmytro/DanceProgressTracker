@@ -1,0 +1,7 @@
+# Окремий простір імен для всіх ресурсів DanceProgressTracker.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dpt
+  labels:
+    app.kubernetes.io/part-of: dance-progress-tracker
