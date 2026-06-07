@@ -1,0 +1,24 @@
+# Залежності
+node_modules/
+
+# Збірки
+web/dist/
+backend/dist/
+
+# Оточення
+.env
+*.local
+
+# Android / Gradle
+mobile/.gradle/
+mobile/build/
+mobile/app/build/
+mobile/local.properties
+mobile/.idea/
+
+# Логи
+*.log
+npm-debug.log*
+
+# ОС
+.DS_Store
