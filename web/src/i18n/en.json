@@ -1,0 +1,93 @@
+{
+  "app": "DanceProgressTracker",
+  "login": {
+    "title": "Sign in",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Invalid username or password",
+    "hint": "Demo: admin/admin or teacher/teacher"
+  },
+  "nav": {
+    "groups": "Groups",
+    "students": "Students",
+    "users": "Users",
+    "data": "Data",
+    "logout": "Log out",
+    "role_admin": "Administrator",
+    "role_teacher": "Teacher"
+  },
+  "groups": {
+    "title": "Groups",
+    "add": "Add group",
+    "name": "Name",
+    "style": "Style",
+    "level": "Level",
+    "students_count": "Students",
+    "open": "Open",
+    "edit": "Edit",
+    "delete": "Delete",
+    "empty": "No groups yet"
+  },
+  "students": {
+    "title": "Group students",
+    "add": "Add student",
+    "lastName": "Last name",
+    "firstName": "First name",
+    "absences": "Absences",
+    "average": "Average",
+    "empty": "No students yet"
+  },
+  "attendance": {
+    "title": "Attendance and grades",
+    "date": "Lesson date",
+    "present": "Present",
+    "grade": "Grade",
+    "no_grade": "—",
+    "save": "Save lesson",
+    "saved": "Lesson saved"
+  },
+  "lessons": {
+    "title": "Lessons",
+    "add": "Add lesson",
+    "new": "New lesson",
+    "edit": "Edit lesson",
+    "delete": "Delete",
+    "empty": "No lessons yet. Click “Add lesson”.",
+    "present_of": "present"
+  },
+  "stats": {
+    "title": "Students and statistics"
+  },
+  "users": {
+    "title": "Users",
+    "add": "Add user",
+    "name": "Name",
+    "username": "Username",
+    "password": "Password",
+    "role": "Role",
+    "delete": "Delete"
+  },
+  "data": {
+    "title": "Data management",
+    "backup": "Backup",
+    "backup_desc": "Download a full data backup as JSON.",
+    "backup_btn": "Download backup",
+    "restore": "Restore",
+    "restore_desc": "Restore data from a backup file.",
+    "restore_btn": "Choose file",
+    "export": "Export report",
+    "export_desc": "Summary report across all groups as CSV.",
+    "export_btn": "Export CSV",
+    "restored": "Data restored",
+    "settings": "Settings",
+    "settings_desc": "UI language and date format apply instantly."
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm_delete": "Delete?",
+    "back": "Back",
+    "language": "Language"
+  }
+}
