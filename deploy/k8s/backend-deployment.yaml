@@ -46,8 +46,8 @@ spec:
               cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "500m"
-              memory: "256Mi"
+              cpu: "1000m"
+              memory: "512Mi"
           # readinessProbe: pod не отримує трафік від Service, поки /health не відповість.
           readinessProbe:
             httpGet:
@@ -55,14 +55,14 @@ spec:
               port: 4000
             initialDelaySeconds: 5
             periodSeconds: 5
-            timeoutSeconds: 2
-            failureThreshold: 3
+            timeoutSeconds: 5
+            failureThreshold: 6
           # livenessProbe: якщо /health перестав відповідати — Kubernetes перезапускає pod.
           livenessProbe:
             httpGet:
               path: /health
               port: 4000
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            timeoutSeconds: 2
-            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
