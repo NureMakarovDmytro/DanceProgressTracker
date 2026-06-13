@@ -1,0 +1,54 @@
+# Горизонтальне масштабування бекенда DanceProgressTracker через Docker Compose.
+#
+# Три сервіси:
+#   mongo   — єдина спільна база даних (стан системи);
+#   backend — серверне ядро Node.js/Express, масштабується до N однакових копій;
+#   nginx   — балансувальник навантаження (reverse proxy), єдина зовнішня точка входу.
+#
+# Клієнти (web/mobile) звертаються лише на http://localhost:4000 і не знають
+# ані про кількість копій бекенда, ані про балансування.
+#
+# Запуск з однією копією (без масштабування):
+#   docker compose up --build
+#
+# Запуск із трьома копіями бекенда (горизонтальне масштабування):
+#   docker compose up --build --scale backend=3
+#
+# Початкове наповнення БД демо-користувачами (admin/admin, teacher/teacher):
+#   docker compose exec backend npm run seed
+
+services:
+  mongo:
+    image: mongo:7
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    # Порт назовні не публікуємо — Mongo доступна лише у внутрішній мережі Compose.
+
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: ../deploy/docker/Dockerfile
+    restart: always
+    environment:
+      PORT: "4000"
+      MONGO_URI: "mongodb://mongo:27017/dpt"
+      JWT_SECRET: "compose-demo-secret-change-in-prod"
+    expose:
+      - "4000"            # порт видно лише іншим сервісам, не хост-машині
+    depends_on:
+      - mongo
+    # Кількістю копій цього сервісу керує прапорець --scale backend=N.
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "4000:80"         # хост:4000 -> балансувальник:80 -> копії backend:4000
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:

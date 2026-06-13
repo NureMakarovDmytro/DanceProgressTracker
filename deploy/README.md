@@ -1,8 +1,13 @@
 # ЛР4 — Масштабування бекенда DanceProgressTracker
 
-Інфраструктура для **горизонтального масштабування** REST API (Node.js + Express + MongoDB)
-у Kubernetes. Сам бекенд (`../backend`) не змінювався — масштабування досягається
-виключно засобами розгортання та оркестрації.
+Інфраструктура для **горизонтального масштабування** REST API (Node.js + Express + MongoDB).
+Сам бекенд (`../backend`) не змінювався — масштабування досягається виключно засобами
+розгортання та оркестрації. Реалізовано два взаємодоповнювальні варіанти:
+
+- **`compose/` — Docker Compose + Nginx** (round-robin): простий запуск кількох копій
+  бекенда командою `docker compose up --scale backend=N`. Саме цей варіант описано у звіті ЛР4.
+- **`k8s/` — Kubernetes**: Deployment + Service + HorizontalPodAutoscaler + Ingress із
+  автоматичним масштабуванням за CPU (нижче).
 
 ```
                          ┌──────────────────────────┐
@@ -93,5 +98,6 @@ kubectl delete namespace dpt
 ## Структура каталогу
 
 - `docker/` — `Dockerfile` + `.dockerignore` для образу бекенда.
+- `compose/` — `docker-compose.yml` + `nginx/nginx.conf` для масштабування через Docker Compose.
 - `k8s/` — маніфести Kubernetes (namespace, mongo, deployment, service, hpa, ingress/lb, secrets).
-- `loadtest/` — навантажувальні тести (k6 + Locust) і методика замірів.
+- `loadtest/` — навантажувальні тести (Locust + k6), методика замірів і результати (`results/`).

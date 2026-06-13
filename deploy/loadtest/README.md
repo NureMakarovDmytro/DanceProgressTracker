@@ -7,6 +7,8 @@
 ## Передумови
 
 1. API доступний за деякою URL (`BASE_URL`). Варіанти:
+   - **через Docker Compose + Nginx** (основний варіант звіту ЛР4): `http://localhost:4000`
+     (див. `../compose/README.md`, запуск `docker compose up --scale backend=N`);
    - через Ingress: `http://dpt.local` (додайте host у `/etc/hosts`);
    - через `kubectl port-forward -n dpt svc/backend 8080:80` -> `http://localhost:8080`;
    - через LoadBalancer/`minikube tunnel`.
@@ -47,23 +49,32 @@ locust -f locustfile.py --host http://localhost:8080 --headless -u 100 -r 5 -t 3
 
 ## Методика демонстрації масштабування
 
-Прогнати тест ТРИЧІ з тим самим навантаженням, змінюючи лише кількість pod-ів API,
-і щоразу занотувати RPS та p95:
+Прогнати тест ДВІЧІ з тим самим навантаженням, змінюючи лише кількість копій бекенда,
+і щоразу занотувати RPS та p95.
+
+**Варіант Docker Compose (як у звіті ЛР4):**
 
 ```bash
-# Прогін 1: 2 pod-и
+# Прогін 1: 1 копія
+docker compose -f ../compose/docker-compose.yml up -d --build --scale backend=1
+locust -f locustfile.py --host http://localhost:4000 \
+       --headless -u 400 -r 8 -t 3m --csv results/1-instance
+
+# Прогін 2: 3 копії
+docker compose -f ../compose/docker-compose.yml up -d --scale backend=3
+locust -f locustfile.py --host http://localhost:4000 \
+       --headless -u 400 -r 8 -t 3m --csv results/3-instances
+```
+
+**Варіант Kubernetes:**
+
+```bash
 kubectl -n dpt scale deployment/backend --replicas=2
 k6 run -e BASE_URL=http://localhost:8080 loadtest.js
-
-# Прогін 2: 4 pod-и
-kubectl -n dpt scale deployment/backend --replicas=4
-k6 run -e BASE_URL=http://localhost:8080 loadtest.js
-
-# Прогін 3: 6 pod-ів
 kubectl -n dpt scale deployment/backend --replicas=6
 k6 run -e BASE_URL=http://localhost:8080 loadtest.js
 ```
 
-Очікувано: RPS зростає приблизно лінійно з кількістю pod-ів, поки вузьким місцем
-не стане єдина MongoDB. Зведіть результати в таблицю `replicas -> RPS -> p95`
-і додайте графік — це і є доказ зв'язку «кількість pod-ів ↔ пропускна здатність».
+Очікувано: RPS зростає приблизно лінійно з кількістю копій, поки вузьким місцем
+не стане єдина MongoDB. Зведені результати — у `results/summary.md`; це і є доказ
+зв'язку «кількість копій ↔ пропускна здатність».
